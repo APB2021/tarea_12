@@ -1,10 +1,13 @@
 package tarea_12;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Menu {
 
     private static final Scanner sc = new Scanner(System.in);
+    private static Connection conexionBD = null;
 
     // Método para mostrar el menú de opciones
     public static void mostrarMenu() {
@@ -15,11 +18,23 @@ public class Menu {
         System.out.println("4. Salir");
     }
 
-    // Método para manejar las opciones del menú
+    // Método para gestionar las opciones del menú
     public static void gestionarMenu() {
         int opcion;
         boolean salir = false;
 
+        // Establecer la conexión a la base de datos al inicio del menú
+        conexionBD = ConexionBDMySQL.getConexion();
+        
+        // Asegurarse de que la conexión se haya establecido correctamente
+        if (conexionBD == null) {
+            System.out.println("Error al establecer la conexión a la base de datos.");
+            return;  // Salir del método si no hay conexión
+        } else {
+            System.out.println("Conexión a la base de datos establecida correctamente.");
+        }
+
+        // Bucle principal del menú
         while (!salir) {
             mostrarMenu();
             System.out.print("Seleccione una opción: ");
@@ -44,33 +59,33 @@ public class Menu {
                     System.out.println("Opción no válida. Intente nuevamente.");
             }
         }
+
+        // Cerrar la conexión cuando el usuario salga
+        try {
+            if (conexionBD != null && !conexionBD.isClosed()) {
+                conexionBD.close();
+                System.out.println("Conexión cerrada.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al cerrar la conexión: " + e.getMessage());
+        }
     }
 
     // Método para insertar un nuevo alumno (ejemplo de operación)
     private static void insertarAlumno() {
-        // Lógica para insertar un nuevo alumno
         System.out.println("Insertar un nuevo alumno");
-        // Aquí podrías pedir los datos al usuario y luego insertar el alumno en la base de datos
-        // Por ejemplo:
-        // Alumno alumno = new Alumno(...);
-        // Llamar a un método para insertar el alumno en la base de datos
+        // Lógica para insertar un nuevo alumno en la base de datos
     }
 
     // Método para mostrar los alumnos (ejemplo de operación)
     private static void mostrarAlumnos() {
         System.out.println("Mostrar lista de alumnos");
-        // Aquí podrías obtener los alumnos de la base de datos y mostrarlos
-        // Por ejemplo:
-        // List<Alumno> alumnos = obtenerAlumnosDeBD();
-        // Imprimir la lista de alumnos
+        // Lógica para mostrar los alumnos desde la base de datos
     }
 
     // Método para mostrar los grupos (ejemplo de operación)
     private static void mostrarGrupos() {
         System.out.println("Mostrar lista de grupos");
-        // Aquí podrías obtener los grupos de la base de datos y mostrarlos
-        // Por ejemplo:
-        // List<Grupo> grupos = obtenerGruposDeBD();
-        // Imprimir la lista de grupos
+        // Lógica para mostrar los grupos desde la base de datos
     }
 }
