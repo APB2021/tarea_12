@@ -4,8 +4,12 @@ import java.sql.Connection;
 import java.util.Scanner;
 
 /**
- * Clase para gestionar el menú principal de la aplicación.
+ * Clase para gestionar el menú principal de la aplicación. Permite interactuar
+ * con el usuario y ejecutar diversas opciones, como insertar alumnos, grupos,
+ * mostrar los alumnos o guardar la información de los alumnos en un archivo de
+ * texto.
  */
+
 public class Menu {
 
 	private final Scanner sc = new Scanner(System.in);
@@ -13,8 +17,11 @@ public class Menu {
 	private final GestorGrupos gestorGrupos = new GestorGrupos();
 
 	/**
-	 * Muestra el menú principal y permite seleccionar una opción.
-	 */
+     * Muestra el menú principal y permite seleccionar una opción.
+     * Permite al usuario seleccionar opciones como insertar alumnos, grupos, 
+     * mostrar todos los alumnos y guardar los datos de los alumnos en un archivo de texto.
+     */
+	
 	public void mostrarMenu() {
 		int opcion;
 
@@ -23,6 +30,7 @@ public class Menu {
 			System.out.println("1. Insertar nuevo alumno");
 			System.out.println("2. Insertar nuevo grupo");
 			System.out.println("3. Mostrar todos los alumnos");
+			System.out.println("4. Guardar todos los alumnos en un fichero de texto");
 			System.out.println("0. Salir");
 			System.out.println("-------------------------");
 			System.out.print("Selecciona una opción: ");
@@ -40,6 +48,9 @@ public class Menu {
 					break;
 				case 3:
 					mostrarTodosLosAlumnos();
+					break;
+				case 4:
+					guardarAlumnosEnFicheroTexto();
 					break;
 				case 0:
 					System.out.println("Saliendo del programa...");
@@ -144,5 +155,26 @@ public class Menu {
 			System.out.println("Ocurrió un error al mostrar los alumnos: " + e.getMessage());
 		}
 	}
+
+	/**
+	 * Permite guardar todos los alumnos en un archivo de texto.
+	 * Recupera la información de los alumnos de la base de datos y la guarda en un archivo llamado "alumnos.txt".
+	 * La información incluye: nombre, apellidos, género, fecha de nacimiento, ciclo, curso y nombre del grupo.
+	 */
+	private void guardarAlumnosEnFicheroTexto() {
+	    try {
+	        // Recuperamos todos los alumnos
+	        Connection conexionBD = ConexionBDMySQL.getConexion();
+	        
+	        // Llamamos al método que guarda los alumnos en el fichero de texto sin esperar un valor booleano
+	        gestorAlumnos.guardarAlumnosEnFicheroTexto(conexionBD);
+	        
+	        System.out.println("Alumnos guardados correctamente en el archivo de texto.");
+	        
+	    } catch (Exception e) {
+	        System.out.println("Ocurrió un error al guardar los alumnos en el archivo de texto: " + e.getMessage());
+	    }
+	}
+
 
 }
