@@ -33,6 +33,17 @@ public class Alumno implements Serializable {
 		this.grupo = grupo;
 	}
 
+	public Alumno(String nombre, String apellidos, char genero, Date fechaNacimiento, String ciclo, String curso,
+			Grupo grupo) {
+		this.nombre = nombre;
+		this.apellidos = apellidos;
+		this.genero = genero;
+		this.fechaNacimiento = fechaNacimiento;
+		this.ciclo = ciclo;
+		this.curso = curso;
+		this.grupo = grupo;
+	}
+
 	// Getters & Setters:
 
 	public int getNia() {

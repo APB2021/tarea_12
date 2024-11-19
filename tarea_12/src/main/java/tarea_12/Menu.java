@@ -1,91 +1,85 @@
 package tarea_12;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Scanner;
 
+/**
+ * Clase para gestionar el menú principal de la aplicación.
+ */
 public class Menu {
 
     private static final Scanner sc = new Scanner(System.in);
-    private static Connection conexionBD = null;
+    private GestorAlumnos gestorAlumnos;
 
-    // Método para mostrar el menú de opciones
-    public static void mostrarMenu() {
-        System.out.println("Menú:");
-        System.out.println("1. Insertar nuevo alumno");
-        System.out.println("2. Ver lista de alumnos");
-        System.out.println("3. Ver lista de grupos");
-        System.out.println("4. Salir");
+    /**
+     * Constructor de la clase Menu.
+     */
+    public Menu() {
+        this.gestorAlumnos = new GestorAlumnos();
     }
 
-    // Método para gestionar las opciones del menú
-    public static void gestionarMenu() {
+    /**
+     * Muestra el menú principal y permite seleccionar una opción.
+     */
+    public void mostrarMenu() {
         int opcion;
-        boolean salir = false;
 
-        // Establecer la conexión a la base de datos al inicio del menú
-        conexionBD = ConexionBDMySQL.getConexion();
-        
-        // Asegurarse de que la conexión se haya establecido correctamente
-        if (conexionBD == null) {
-            System.out.println("Error al establecer la conexión a la base de datos.");
-            return;  // Salir del método si no hay conexión
-        } else {
-            System.out.println("Conexión a la base de datos establecida correctamente.");
-        }
+        do {
+            System.out.println("---- Menú Principal ----");
+            System.out.println("1. Insertar nuevo alumno");
+            System.out.println("2. Salir");
+            System.out.println("-------------------------");
+            System.out.print("Selecciona una opción: ");
 
-        // Bucle principal del menú
-        while (!salir) {
-            mostrarMenu();
-            System.out.print("Seleccione una opción: ");
-            opcion = sc.nextInt();
-            sc.nextLine();  // Limpiar el buffer del scanner
+            try {
+                opcion = sc.nextInt();
+                sc.nextLine(); // Limpiar buffer
 
-            switch (opcion) {
-                case 1:
-                    insertarAlumno();
-                    break;
-                case 2:
-                    mostrarAlumnos();
-                    break;
-                case 3:
-                    mostrarGrupos();
-                    break;
-                case 4:
-                    System.out.println("Saliendo...");
-                    salir = true;
-                    break;
-                default:
-                    System.out.println("Opción no válida. Intente nuevamente.");
+                switch (opcion) {
+                    case 1:
+                        insertarNuevoAlumno();
+                        break;
+                    case 2:
+                        System.out.println("Saliendo del programa...");
+                        break;
+                    default:
+                        System.out.println("Opción no válida. Intenta de nuevo.");
+                }
+            } catch (Exception e) {
+                System.out.println("Entrada no válida. Por favor, introduce un número.");
+                sc.nextLine(); // Limpiar el buffer en caso de error
+                opcion = 0; // Reiniciar la opción para evitar salir del bucle
             }
-        }
+        } while (opcion != 2);
+    }
 
-        // Cerrar la conexión cuando el usuario salga
+    /**
+     * Permite insertar un nuevo alumno solicitando los datos al usuario y
+     * almacenándolos en la base de datos.
+     */
+    private void insertarNuevoAlumno() {
+        Connection conexionBD = null;
+
         try {
-            if (conexionBD != null && !conexionBD.isClosed()) {
-                conexionBD.close();
-                System.out.println("Conexión cerrada.");
+            Alumno alumno = gestorAlumnos.solicitarDatosAlumno();
+            conexionBD = ConexionBDMySQL.getConexion();
+
+            if (gestorAlumnos.insertarAlumno(conexionBD, alumno)) {
+                System.out.println("Alumno insertado correctamente.");
+            } else {
+                System.out.println("Error al insertar el alumno.");
             }
-        } catch (SQLException e) {
-            System.out.println("Error al cerrar la conexión: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Ocurrió un error al insertar el alumno: " + e.getMessage());
+        } finally {
+            try {
+                if (conexionBD != null && !conexionBD.isClosed()) {
+                    conexionBD.close();
+                    System.out.println("Conexión a la base de datos cerrada.");
+                }
+            } catch (Exception e) {
+                System.out.println("Error al cerrar la conexión: " + e.getMessage());
+            }
         }
-    }
-
-    // Método para insertar un nuevo alumno (ejemplo de operación)
-    private static void insertarAlumno() {
-        System.out.println("Insertar un nuevo alumno");
-        // Lógica para insertar un nuevo alumno en la base de datos
-    }
-
-    // Método para mostrar los alumnos (ejemplo de operación)
-    private static void mostrarAlumnos() {
-        System.out.println("Mostrar lista de alumnos");
-        // Lógica para mostrar los alumnos desde la base de datos
-    }
-
-    // Método para mostrar los grupos (ejemplo de operación)
-    private static void mostrarGrupos() {
-        System.out.println("Mostrar lista de grupos");
-        // Lógica para mostrar los grupos desde la base de datos
     }
 }
