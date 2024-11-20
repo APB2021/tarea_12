@@ -32,6 +32,8 @@ public class Menu {
 			System.out.println("3. Mostrar todos los alumnos");
 			System.out.println("4. Guardar todos los alumnos en un fichero de texto");
 			System.out.println("5. Leer alumnos de un fichero de texto y guardarlos en la BD");
+			System.out.println("6. Modificar el nombre de un alumno por su NIA");
+			System.out.println("7. Eliminar un alumno a partir de su NIA");
 
 			System.out.println("0. Salir");
 			System.out.println("-------------------------");
@@ -56,6 +58,12 @@ public class Menu {
 					break;
 				case 5:
 					leerAlumnosDesdeFichero();
+					break;
+				case 6:
+					modificarNombreAlumnoPorNia();
+					break;
+				case 7:
+					eliminarAlumnoPorNIA();;
 					break;
 				case 0:
 					System.out.println("Saliendo del programa...");
@@ -182,24 +190,103 @@ public class Menu {
 			System.out.println("Ocurrió un error al guardar los alumnos en el archivo de texto: " + e.getMessage());
 		}
 	}
-	
+
 	/**
-	 * Permite leer alumnos desde el fichero fijo "alumnos.txt" y guardarlos en la base de datos.
+	 * Permite leer alumnos desde el fichero fijo "alumnos.txt" y guardarlos en la
+	 * base de datos.
 	 */
 	private void leerAlumnosDesdeFichero() {
-	    try {
-	        Connection conexionBD = ConexionBDMySQL.getConexion();
+		try {
+			Connection conexionBD = ConexionBDMySQL.getConexion();
 
-	        if (gestorAlumnos.leerAlumnosDeFicheroTexto(conexionBD)) {
-	            System.out.println("Alumnos leídos e insertados correctamente desde el fichero 'alumnos.txt'.");
-	        } else {
-	            System.out.println("Ocurrió un error al procesar el fichero.");
-	        }
-	    } catch (Exception e) {
-	        System.out.println("Error: " + e.getMessage());
-	    }
+			if (gestorAlumnos.leerAlumnosDeFicheroTexto(conexionBD)) {
+				System.out.println("Alumnos leídos e insertados correctamente desde el fichero 'alumnos.txt'.");
+			} else {
+				System.out.println("Ocurrió un error al procesar el fichero.");
+			}
+		} catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
+		}
 	}
 
+	/**
+	 * Permite modificar el nombre de un alumno solicitando su NIA y el nuevo
+	 * nombre.
+	 */
+	private void modificarNombreAlumnoPorNia() {
+		Connection conexionBD = null;
+		try {
+			// Solicitar al usuario el NIA del alumno
+			System.out.print("Introduce el NIA del alumno cuyo nombre quieres modificar: ");
+			int nia = sc.nextInt();
+			sc.nextLine(); // Limpiar buffer
 
+			// Solicitar el nuevo nombre del alumno
+			System.out.print("Introduce el nuevo nombre para el alumno: ");
+			String nuevoNombre = sc.nextLine().trim().toUpperCase();
+
+			// Validar que el nombre no esté vacío
+			if (nuevoNombre.isEmpty()) {
+				System.out.println("El nombre no puede estar vacío.");
+				return;
+			}
+
+			// Conectar a la base de datos
+			conexionBD = ConexionBDMySQL.getConexion();
+
+			// Llamar al método del gestor para modificar el nombre
+			if (gestorAlumnos.modificarNombreAlumnoPorNia(conexionBD, nia, nuevoNombre)) {
+				System.out.println("Nombre del alumno modificado correctamente.");
+			} else {
+				System.out.println("No se pudo modificar el nombre del alumno. Verifica el NIA.");
+			}
+		} catch (Exception e) {
+			System.out.println("Ocurrió un error al modificar el nombre del alumno: " + e.getMessage());
+		} finally {
+			try {
+				if (conexionBD != null && !conexionBD.isClosed()) {
+					conexionBD.close();
+					System.out.println("Conexión a la base de datos cerrada.");
+				}
+			} catch (Exception e) {
+				System.out.println("Error al cerrar la conexión: " + e.getMessage());
+			}
+		}
+	}
+
+	/**
+	 * Permite eliminar un alumno de la base de datos a partir de su NIA (PK).
+	 */
+	private void eliminarAlumnoPorNIA() {
+		Connection conexionBD = null;
+
+		try {
+			// Solicitar NIA al usuario
+			System.out.println("Introduce el NIA del alumno a eliminar:");
+			int nia = sc.nextInt();
+			sc.nextLine(); // Limpiar buffer
+
+			// Obtener la conexión a la base de datos
+			conexionBD = ConexionBDMySQL.getConexion();
+
+			// Intentar eliminar el alumno
+			if (gestorAlumnos.eliminarAlumnoPorNIA(conexionBD, nia)) {
+				System.out.println("Alumno eliminado correctamente.");
+			} else {
+				System.out.println("No se encontró un alumno con el NIA proporcionado.");
+			}
+		} catch (Exception e) {
+			System.out.println("Ocurrió un error al intentar eliminar el alumno: " + e.getMessage());
+		} finally {
+			try {
+				if (conexionBD != null && !conexionBD.isClosed()) {
+					conexionBD.close();
+					System.out.println("Conexión a la base de datos cerrada.");
+				}
+			} catch (Exception e) {
+				System.out.println("Error al cerrar la conexión: " + e.getMessage());
+			}
+		}
+	}
 
 }
