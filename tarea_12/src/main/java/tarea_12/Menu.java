@@ -1,5 +1,6 @@
 package tarea_12;
 
+import java.io.File;
 import java.sql.Connection;
 import java.util.Scanner;
 
@@ -34,6 +35,7 @@ public class Menu {
 			System.out.println("7. Eliminar un alumno a partir de su NIA");
 			System.out.println("8. Eliminar los alumnos del grupo indicado");
 			System.out.println("9. Guardar grupos y alumnos en un archivo XML");
+			System.out.println("10. Leer un archivo XML de grupos y guardar los datos en la BD");
 
 			System.out.println("0. Salir");
 			System.out.println("-------------------------");
@@ -72,7 +74,9 @@ public class Menu {
 				case 9:
 					guardarGruposEnXML();
 					break;
-
+				case 10:
+					leerYGuardarGruposXML();
+					break;
 				case 0:
 					System.out.println("Saliendo del programa...");
 					break;
@@ -387,6 +391,53 @@ public class Menu {
 				System.out.println("Error al cerrar la conexión: " + e.getMessage());
 			}
 		}
+	}
+	
+	/**
+	 * Lee el archivo XML de grupos (alumnos.xml) y guarda los datos en la base de datos MySQL.
+	 * Si ocurre un error durante el proceso, se captura la excepción y se muestra un mensaje de error.
+	 */
+	private void leerYGuardarGruposXML() {
+	    // Variable para almacenar la conexión a la base de datos
+	    Connection conexionBD = null;
+
+	    try {
+	        // Obtenemos la conexión a la base de datos mediante la clase ConexionBDMySQL
+	        conexionBD = ConexionBDMySQL.getConexion();
+
+	        // Ruta fija del archivo XML de grupos
+	        String rutaArchivo = "grupos.xml";
+
+	        // Verificamos si el archivo existe
+	        File archivoXML = new File(rutaArchivo);
+	        if (!archivoXML.exists()) {
+	            System.out.println("El archivo XML no existe en la ruta especificada: " + rutaArchivo);
+	            return; // Salimos del método si el archivo no existe
+	        }
+
+	        // Llamamos al método de GestorGrupos para leer los grupos en el archivo XML
+	        if (GestorGrupos.leerYGuardarGruposXML(rutaArchivo, conexionBD)) {
+	            // Si el proceso es exitoso, mostramos un mensaje de éxito
+	            System.out.println("Archivo XML leído correctamente y datos guardados en la base de datos.");
+	        } else {
+	            // Si hubo un error en el proceso, mostramos un mensaje de fallo
+	            System.out.println("Error al procesar el archivo XML.");
+	        }
+	        
+	    } catch (Exception e) {
+	        // Capturamos cualquier excepción y mostramos el mensaje de error
+	        System.out.println("Ocurrió un error al leer los grupos en XML: " + e.getMessage());
+	    } finally {
+	        // Cerramos la conexión a la base de datos en el bloque finally
+	        try {
+	            if (conexionBD != null && !conexionBD.isClosed()) {
+	                conexionBD.close();
+	                System.out.println("Conexión a la base de datos cerrada.");
+	            }
+	        } catch (Exception e) {
+	            System.out.println("Error al cerrar la conexión: " + e.getMessage());
+	        }
+	    }
 	}
 
 }
