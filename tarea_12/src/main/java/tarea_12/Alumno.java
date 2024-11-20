@@ -21,6 +21,10 @@ public class Alumno implements Serializable {
 
 	// Constructores de la clase Alumno:
 
+	public Alumno() {
+
+	}
+
 	public Alumno(int nia, String nombre, String apellidos, char genero, Date fechaNacimiento, String ciclo,
 			String curso, Grupo grupo) {
 		this.nia = nia;
