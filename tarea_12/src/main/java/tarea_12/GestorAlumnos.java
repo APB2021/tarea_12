@@ -490,4 +490,47 @@ public class GestorAlumnos {
 		}
 	}
 
+	/**
+	 * Elimina a todos los alumnos de un grupo específico.
+	 * 
+	 * @param conexionBD  la conexión activa a la base de datos.
+	 * @param nombreGrupo el nombre del grupo cuyos alumnos serán eliminados.
+	 * @return true si se eliminaron correctamente, false si ocurrió un error.
+	 */
+	public boolean eliminarAlumnosPorGrupo(Connection conexionBD, String nombreGrupo) {
+		// Verificamos si el grupo tiene alumnos antes de intentar eliminar
+		String comprobarAlumnosSql = "SELECT COUNT(*) FROM alumnos WHERE numeroGrupo = (SELECT numeroGrupo FROM grupos WHERE nombreGrupo = ?)";
+
+		try (PreparedStatement comprobarAlumnosSentencia = conexionBD.prepareStatement(comprobarAlumnosSql)) {
+			comprobarAlumnosSentencia.setString(1, nombreGrupo);
+
+			ResultSet resultado = comprobarAlumnosSentencia.executeQuery();
+			if (resultado.next()) {
+				int cantidadAlumnos = resultado.getInt(1);
+
+				if (cantidadAlumnos == 0) {
+					System.out.println("El grupo " + nombreGrupo + " no tiene alumnos.");
+					return false; // Si no hay alumnos, no eliminamos nada
+				}
+			}
+
+			// Procedemos a eliminar los alumnos si existen
+			String sql = "DELETE FROM alumnos WHERE numeroGrupo = (SELECT numeroGrupo FROM grupos WHERE nombreGrupo = ?)";
+			try (PreparedStatement sentencia = conexionBD.prepareStatement(sql)) {
+				sentencia.setString(1, nombreGrupo);
+
+				int filasAfectadas = sentencia.executeUpdate();
+				return filasAfectadas > 0;
+
+			} catch (SQLException e) {
+				System.out.println("Error al eliminar alumnos por grupo: " + e.getMessage());
+				return false;
+			}
+
+		} catch (SQLException e) {
+			System.out.println("Error al verificar si el grupo tiene alumnos: " + e.getMessage());
+			return false;
+		}
+	}
+
 }

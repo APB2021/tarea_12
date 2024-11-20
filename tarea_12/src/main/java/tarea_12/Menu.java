@@ -34,6 +34,8 @@ public class Menu {
 			System.out.println("5. Leer alumnos de un fichero de texto y guardarlos en la BD");
 			System.out.println("6. Modificar el nombre de un alumno por su NIA");
 			System.out.println("7. Eliminar un alumno a partir de su NIA");
+			System.out.println("8. Eliminar los alumnos del grupo indicado");
+
 
 			System.out.println("0. Salir");
 			System.out.println("-------------------------");
@@ -65,6 +67,10 @@ public class Menu {
 				case 7:
 					eliminarAlumnoPorNIA();;
 					break;
+				case 8:
+				    eliminarAlumnosPorGrupo();
+				    break;
+
 				case 0:
 					System.out.println("Saliendo del programa...");
 					break;
@@ -288,5 +294,57 @@ public class Menu {
 			}
 		}
 	}
+	/**
+	 * Elimina los alumnos del grupo indicado por el usuario.
+	 * Muestra previamente los grupos existentes y permite al usuario seleccionar uno.
+	 * Luego elimina a todos los alumnos que pertenezcan al grupo seleccionado.
+	 */
+	private void eliminarAlumnosPorGrupo() {
+	    Connection conexionBD = null;
+
+	    try {
+	        // Establecemos conexión con la base de datos
+	        conexionBD = ConexionBDMySQL.getConexion();
+
+	        // Mostramos los grupos disponibles
+	        System.out.println("Grupos disponibles:");
+	        if (!gestorGrupos.mostrarTodosLosGrupos(conexionBD)) {
+	            System.out.println("No hay grupos registrados.");
+	            return;
+	        }
+
+	        // Pedimos al usuario el nombre del grupo a eliminar
+	        System.out.println("Introduce el nombre del grupo cuyos alumnos deseas eliminar:");
+	        String nombreGrupo = sc.nextLine().toUpperCase().trim();
+
+	        // Confirmamos la operación con el usuario
+	        System.out.println("¿Estás seguro de que deseas eliminar todos los alumnos del grupo " + nombreGrupo + "? (S/N)");
+	        String confirmacion = sc.nextLine().toUpperCase().trim();
+
+	        if (!confirmacion.equals("S")) {
+	            System.out.println("Operación cancelada por el usuario.");
+	            return;
+	        }
+
+	        // Llamamos al gestor para realizar la operación
+	        if (gestorAlumnos.eliminarAlumnosPorGrupo(conexionBD, nombreGrupo)) {
+	            System.out.println("Alumnos del grupo " + nombreGrupo + " eliminados correctamente.");
+	        } else {
+	            System.out.println("No se pudieron eliminar los alumnos del grupo especificado. Verifica el nombre del grupo.");
+	        }
+	    } catch (Exception e) {
+	        System.out.println("Ocurrió un error al eliminar alumnos por grupo: " + e.getMessage());
+	    } finally {
+	        try {
+	            if (conexionBD != null && !conexionBD.isClosed()) {
+	                conexionBD.close();
+	                System.out.println("Conexión a la base de datos cerrada.");
+	            }
+	        } catch (Exception e) {
+	            System.out.println("Error al cerrar la conexión: " + e.getMessage());
+	        }
+	    }
+	}
+
 
 }
